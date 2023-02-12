@@ -24,11 +24,18 @@ def load_mail() -> List[Dict[str, str]]:
 
 def save_mail(mail: List[Dict[str, str]]) -> None:
     """TODO: fill out this docstring (using the load_mail docstring as a guide)
+    Saves the mail list to a json file
+    
+    Returns: nothing
     """
     thisdir.joinpath('mail_db.json').write_text(json.dumps(mail, indent=4))
 
 def add_mail(mail_entry: Dict[str, str]) -> str:
     """TODO: fill out this docstring (using the load_mail docstring as a guide)
+    Adds new mail to the mail list and saves the list to the json file
+    
+    Returns:
+        str: The string ID of the mail added
     """
     mail = load_mail()
     mail.append(mail_entry)
@@ -38,6 +45,10 @@ def add_mail(mail_entry: Dict[str, str]) -> str:
 
 def delete_mail(mail_id: str) -> bool:
     """TODO: fill out this docstring (using the load_mail docstring as a guide)
+    Deletes mail from the mail list if ID is found and saves list to json
+    
+    Returns:
+        bool: True if mail with the corresponding ID is found and deleted, False if not.
     """
     mail = load_mail()
     for i, entry in enumerate(mail):
@@ -50,6 +61,11 @@ def delete_mail(mail_id: str) -> bool:
 
 def get_mail(mail_id: str) -> Optional[Dict[str, str]]:
     """TODO: fill out this docstring (using the load_mail docstring as a guide)
+    Finds mail entry based on ID
+    
+    Returns:
+        Dict: Mail entry of matching ID if found
+        Nothing: There is no mail entry with a matching ID
     """
     mail = load_mail()
     for entry in mail:
@@ -60,6 +76,10 @@ def get_mail(mail_id: str) -> Optional[Dict[str, str]]:
 
 def get_inbox(recipient: str) -> List[Dict[str, str]]:
     """TODO: fill out this docstring (using the load_mail docstring as a guide)
+    Gets the inbox of the specified mail recipient
+    
+    Returns:
+        list: List of all mail to recipient
     """
     mail = load_mail()
     inbox = []
@@ -71,6 +91,11 @@ def get_inbox(recipient: str) -> List[Dict[str, str]]:
 
 def get_sent(sender: str) -> List[Dict[str, str]]:
     """TODO: fill out this docstring (using the load_mail docstring as a guide)
+    Gets all mail sent from specified sender
+    
+    Returns:
+        list: List of all mail from sender
+        
     """
     mail = load_mail()
     sent = []
@@ -107,7 +132,10 @@ def delete_mail_route(mail_id: str):
         bool: True if the mail was deleted, False otherwise
     """
     # TODO: implement this function
-    pass # remove this line
+    del_mail = delete_mail(mail_id)
+    res = jsonify({'deleted': del_mail})
+    res.status_code = 200
+    return res
 
 @app.route('/mail/<mail_id>', methods=['GET'])
 def get_mail_route(mail_id: str):
@@ -139,10 +167,14 @@ def get_inbox_route(recipient: str):
     res.status_code = 200
     return res
 
-# TODO: implement a rout e to get all mail entries for a sender
+# TODO: implement a route to get all mail entries for a sender
 # HINT: start with soemthing like this:
 #   @app.route('/mail/sent/<sender>', ...)
-
+@app.route('/mail/sent/<sender>', methods=['GET'])
+def get_all_send(sender: str):
+    res = jsonify(get_sent(sender))
+    res.status_code = 200
+    return res
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
